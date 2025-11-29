@@ -10,7 +10,7 @@ from tqdm import tqdm
 from typing import Optional
 from typing_extensions import Literal
 
-from  utils import BasePipeline, ModelConfig, PipelineUnit, PipelineUnitRunner
+from utils import BasePipeline, ModelConfig, PipelineUnit, PipelineUnitRunner
 from models.model_manager import ModelManager
 from models.utils import load_state_dict
 from models.wan_video_dit import WanModel, RMSNorm, sinusoidal_embedding_1d
