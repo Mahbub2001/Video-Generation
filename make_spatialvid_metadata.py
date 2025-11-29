@@ -1,4 +1,3 @@
-# make_spatialvid_metadata_kaggle.py
 import os
 import json
 import pandas as pd
@@ -16,9 +15,9 @@ print("Scanning videos and loading captions...")
 for video_path in videos_dir.rglob("*.mp4"):
     rel_path = video_path.relative_to(INPUT_DATASET_PATH)
     
-    # Fixed: Get group and uuid correctly
+    # Get group and uuid
     group = video_path.parent.name      # group_0001, group_0002, etc.
-    uuid = video_path.stem               # 0a00f99d-9d9a-5265-9548-e97a34c1302c
+    uuid = video_path.stem               # video UUID
     
     caption_file = Path(INPUT_DATASET_PATH) / "annotations" / group / uuid / "caption.json"
     
@@ -26,17 +25,30 @@ for video_path in videos_dir.rglob("*.mp4"):
         try:
             with open(caption_file, "r", encoding="utf-8") as f:
                 caption_data = json.load(f)
-                caption = caption_data.get("caption", "A detailed 3D object rotating on a turntable")
+            
+            # Extract scene description (prioritize SceneSummary, fallback to SceneDescription)
+            scene_desc = caption_data.get("SceneSummary", caption_data.get("SceneDescription", ""))
+            camera_motion = caption_data.get("CameraMotion", "")
+            
+            # Build prompt similar to the dataset loader
+            if camera_motion:
+                prompt = f"{scene_desc} Camera: {camera_motion}"
+            else:
+                prompt = scene_desc
+            
+            # Use as-is without enhancement
+            prompt = prompt.strip() if prompt else "A detailed 3D object rotating on a turntable"
+                
         except Exception as e:
             print(f"Warning: Could not read {caption_file}: {e}")
-            caption = "A detailed 3D object rotating on a turntable"
+            prompt = "A detailed 3D object rotating on a turntable"
     else:
         print(f"Warning: Caption not found at {caption_file}")
-        caption = "A detailed 3D object rotating on a turntable"
+        prompt = "A detailed 3D object rotating on a turntable"
     
     rows.append({
         "video": str(rel_path),
-        "prompt": caption.strip() + ", photorealistic, sharp focus, studio lighting, 8k, turntable rotation"
+        "prompt": prompt
     })
 
 # Save CSV to writable directory
@@ -45,5 +57,9 @@ df.to_csv(OUTPUT_CSV_PATH, index=False)
 
 print(f"\n✓ Success! Created metadata with {len(df)} videos")
 print(f"→ Saved to: {OUTPUT_CSV_PATH}")
-print("\nFirst few rows:")
+print(f"\nFirst few rows:")
 print(df.head())
+print(f"\nSample prompts:")
+for i in range(min(3, len(df))):
+    print(f"\n{i+1}. {df.iloc[i]['video']}")
+    print(f"   {df.iloc[i]['prompt'][:150]}...")
