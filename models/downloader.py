@@ -3,7 +3,7 @@ from modelscope import snapshot_download
 import os, shutil
 from typing_extensions import Literal, TypeAlias
 from typing import List
-from model_config import preset_models_on_huggingface, preset_models_on_modelscope, Preset_model_id
+from .model_config import preset_models_on_huggingface, preset_models_on_modelscope, Preset_model_id
 
 
 def download_from_modelscope(model_id, origin_file_path, local_dir):
