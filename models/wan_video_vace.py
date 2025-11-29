@@ -1,5 +1,5 @@
 import torch
-from wan_video_dit import DiTBlock
+from .wan_video_dit import DiTBlock
 from .utils import hash_state_dict_keys
 
 class VaceWanAttentionBlock(DiTBlock):
