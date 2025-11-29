@@ -3,7 +3,7 @@ from typing import List
 
 from .downloader import download_models, download_customized_models, Preset_model_id, Preset_model_website
 
-from model_config import model_loader_configs, huggingface_model_loader_configs, patch_model_loader_configs
+from .model_configmodel_config import model_loader_configs, huggingface_model_loader_configs, patch_model_loader_configs
 from utils import load_state_dict, init_weights_on_device, hash_state_dict_keys, split_state_dict_with_prefix
 from .lora import get_lora_loaders
 
