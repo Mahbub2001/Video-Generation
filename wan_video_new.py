@@ -25,7 +25,7 @@ from models.wan_video_mot import MotWanModel
 from models.longcat_video_dit import LongCatVideoTransformer3DModel
 from schedulers.flow_match import FlowMatchScheduler
 from prompters.wan_prompter import WanPrompter
-from vram_management import enable_vram_management, AutoWrappedModule, AutoWrappedLinear, WanAutoCastLayerNorm
+from vram_management.layers import enable_vram_management, AutoWrappedModule, AutoWrappedLinear, WanAutoCastLayerNorm
 from lora import GeneralLoRALoader
 
 
