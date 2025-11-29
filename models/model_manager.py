@@ -3,8 +3,8 @@ from typing import List
 
 from .downloader import download_models, download_customized_models, Preset_model_id, Preset_model_website
 
-from .model_config import model_loader_configs, huggingface_model_loader_configs, patch_model_loader_configs
-from .utils import load_state_dict, init_weights_on_device, hash_state_dict_keys, split_state_dict_with_prefix
+from model_config import model_loader_configs, huggingface_model_loader_configs, patch_model_loader_configs
+from utils import load_state_dict, init_weights_on_device, hash_state_dict_keys, split_state_dict_with_prefix
 from .lora import get_lora_loaders
 
 def load_model_from_single_file(state_dict, model_names, model_classes, model_resource, torch_dtype, device):
