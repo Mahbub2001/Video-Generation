@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as T
-from wan_video_dit import flash_attention
+from .wan_video_dit import flash_attention
 
 
 class SelfAttention(nn.Module):

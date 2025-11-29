@@ -3,8 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Tuple
-from utils import hash_state_dict_keys
-from wan_video_dit import rearrange, precompute_freqs_cis_3d, DiTBlock, Head, CrossAttention, modulate, sinusoidal_embedding_1d
+from .utils import hash_state_dict_keys
+from .wan_video_dit import rearrange, precompute_freqs_cis_3d, DiTBlock, Head, CrossAttention, modulate, sinusoidal_embedding_1d
 
 
 def torch_dfs(model: nn.Module, parent_name='root'):

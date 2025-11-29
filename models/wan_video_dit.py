@@ -5,7 +5,7 @@ import math
 from typing import Tuple, Optional
 from einops import rearrange
 from utils import hash_state_dict_keys
-from wan_video_camera_controller import SimpleAdapter
+from .wan_video_camera_controller import SimpleAdapter
 try:
     import flash_attn_interface
     FLASH_ATTN_3_AVAILABLE = True

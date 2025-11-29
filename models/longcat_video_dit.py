@@ -8,7 +8,7 @@ import torch.amp as amp
 import numpy as np
 import torch.nn.functional as F
 from einops import rearrange, repeat
-from wan_video_dit import flash_attention
+from .wan_video_dit import flash_attention
 from ..vram_management.gradient_checkpointing import gradient_checkpoint_forward
 
 
