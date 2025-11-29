@@ -1,4 +1,4 @@
-from ..models.model_manager import ModelManager
+from models.model_manager import ModelManager
 import torch
 
 

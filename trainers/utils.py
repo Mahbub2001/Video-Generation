@@ -1,5 +1,5 @@
 import imageio, os, torch, warnings, torchvision, argparse, json
-from ..utils import ModelConfig
+from utils import ModelConfig
 from models.utils import load_state_dict
 from peft import LoraConfig, inject_adapter_in_model
 from PIL import Image
