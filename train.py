@@ -42,24 +42,12 @@ class WanTrainingModule(DiffusionTrainingModule):
         max_timestep_boundary=1.0,
         min_timestep_boundary=0.0,
         tokenizer_path=None,  # ADD THIS PARAMETER
-        text_encoder_path=None
     ):
         super().__init__()
         # Load models
         model_configs = self.parse_model_configs(model_paths, model_id_with_origin_paths, enable_fp8_training=False)
         if audio_processor_config is not None:
             audio_processor_config = ModelConfig(model_id=audio_processor_config.split(":")[0], origin_file_pattern=audio_processor_config.split(":")[1])
-        
-        if text_encoder_path is not None:
-                from models.utils import load_state_dict
-                from models.wan_video_text_encoder import WanTextEncoder
-                state_dict = load_state_dict(text_encoder_path, torch_dtype=torch.bfloat16)
-                text_encoder = WanTextEncoder()
-                text_encoder.load_state_dict(state_dict, strict=False)
-                text_encoder.to(device="cpu", dtype=torch.bfloat16)
-                self.pipe.text_encoder = text_encoder  # Inject directly
-                print(f"Loaded custom text encoder from: {text_encoder_path}")
-    
         self.pipe = WanVideoPipeline.from_pretrained(torch_dtype=torch.bfloat16, device="cpu", model_configs=model_configs, audio_processor_config=audio_processor_config)
         
         # Training mode
