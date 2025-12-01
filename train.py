@@ -41,6 +41,7 @@ class WanTrainingModule(DiffusionTrainingModule):
         extra_inputs=None,
         max_timestep_boundary=1.0,
         min_timestep_boundary=0.0,
+        tokenizer_path=None,  # ADD THIS PARAMETER
     ):
         super().__init__()
         # Load models
@@ -151,6 +152,7 @@ if __name__ == "__main__":
         extra_inputs=args.extra_inputs,
         max_timestep_boundary=args.max_timestep_boundary,
         min_timestep_boundary=args.min_timestep_boundary,
+        tokenizer_path=args.tokenizer_path,  # ADD THIS LINE
     )
     model_logger = ModelLogger(
         args.output_path,
