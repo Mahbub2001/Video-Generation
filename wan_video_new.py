@@ -351,6 +351,7 @@ class WanVideoPipeline(BasePipeline):
         device: Union[str, torch.device] = "cuda",
         model_configs: list[ModelConfig] = [],
         tokenizer_config: ModelConfig = ModelConfig(model_id="Wan-AI/Wan2.1-T2V-1.3B", origin_file_pattern="google/*"),
+        tokenizer_path: str = None,  # ADD THIS PARAMETER
         audio_processor_config: ModelConfig = None,
         redirect_common_files: bool = True,
         use_usp=False,
@@ -408,9 +409,18 @@ class WanVideoPipeline(BasePipeline):
             pipe.width_division_factor = pipe.vae.upsampling_factor * 2
 
         # Initialize tokenizer
-        tokenizer_config.download_if_necessary(use_usp=use_usp)
-        pipe.prompter.fetch_models(pipe.text_encoder)
-        pipe.prompter.fetch_tokenizer(tokenizer_config.path)
+        # tokenizer_config.download_if_necessary(use_usp=use_usp)
+        # pipe.prompter.fetch_models(pipe.text_encoder)
+        # pipe.prompter.fetch_tokenizer(tokenizer_config.path)
+        if tokenizer_path is not None:
+            # Use the provided tokenizer path directly
+            pipe.prompter.fetch_models(pipe.text_encoder)
+            pipe.prompter.fetch_tokenizer(tokenizer_path)
+        else:
+            # Use the old method with ModelConfig
+            tokenizer_config.download_if_necessary(use_usp=use_usp)
+            pipe.prompter.fetch_models(pipe.text_encoder)
+            pipe.prompter.fetch_tokenizer(tokenizer_config.path)
 
         if audio_processor_config is not None:
             audio_processor_config.download_if_necessary(use_usp=use_usp)
