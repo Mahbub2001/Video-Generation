@@ -1,38 +1,19 @@
-# At top of train.py
-import os
-os.environ["MODELSCOPE_CACHE_DIR"] = "/kaggle/working/cache"
-os.makedirs("/kaggle/working/cache", exist_ok=True)
-
-# Disable all remote downloads
-from utils import ModelConfig
-original_download = ModelConfig.download_if_necessary
-
-def safe_download(self, use_usp=False):
-    if self.path is not None and os.path.exists(self.path):
-        print(f"Local model found, skipping download: {self.path}")
-        return
-    if "Wan" in str(self.model_id) or self.origin_file_pattern:
-        print(f"Assuming local file for {self.model_id} -> {self.origin_file_pattern}")
-        return
-    print("Falling back to original download (should not happen)")
-    return original_download(self, use_usp=use_usp)
-
-ModelConfig.download_if_necessary = safe_download
-
 import torch, os, json
 from safetensors import safe_open
 from wan_video_new import WanVideoPipeline
-from utils import  ModelConfig
+from utils import ModelConfig
 from trainers.utils import DiffusionTrainingModule, ModelLogger, launch_training_task, wan_parser
 from trainers.unified_dataset import UnifiedDataset, LoadVideo, LoadAudio, ImageCropAndResize, ToAbsolutePath
+
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+# Prevent ModelScope from trying to download
+os.environ["MODELSCOPE_CACHE"] = "/kaggle/working/.cache/modelscope"
 
 def load_state_dict(file_path, torch_dtype=None, device="cpu"):
     if file_path.endswith(".safetensors"):
         return load_state_dict_from_safetensors(file_path, torch_dtype=torch_dtype, device=device)
     else:
         return load_state_dict_from_bin(file_path, torch_dtype=torch_dtype, device=device)
-
 
 def load_state_dict_from_safetensors(file_path, torch_dtype=None, device="cpu"):
     state_dict = {}
@@ -54,53 +35,82 @@ def load_state_dict_from_bin(file_path, torch_dtype=None, device="cpu"):
 class WanTrainingModule(DiffusionTrainingModule):
     def __init__(
         self,
-        model_paths=None, model_id_with_origin_paths=None, audio_processor_config=None,
+        model_paths=None, 
+        model_id_with_origin_paths=None, 
+        audio_processor_config=None,
         trainable_models=None,
-        lora_base_model=None, lora_target_modules="q,k,v,o,ffn.0,ffn.2", lora_rank=32, lora_checkpoint=None,
+        lora_base_model=None, 
+        lora_target_modules="q,k,v,o,ffn.0,ffn.2", 
+        lora_rank=32, 
+        lora_checkpoint=None,
         use_gradient_checkpointing=True,
         use_gradient_checkpointing_offload=False,
         extra_inputs=None,
         max_timestep_boundary=1.0,
         min_timestep_boundary=0.0,
-        tokenizer_path=None,  # ADD THIS PARAMETER
+        tokenizer_path=None,
     ):
         super().__init__()
-        # Load models
-        model_configs = self.parse_model_configs(model_paths, model_id_with_origin_paths, enable_fp8_training=False)
-        if audio_processor_config is not None:
-            audio_processor_config = ModelConfig(model_id=audio_processor_config.split(":")[0], origin_file_pattern=audio_processor_config.split(":")[1])
-        self.pipe = WanVideoPipeline.from_pretrained(torch_dtype=torch.bfloat16, device="cpu", model_configs=model_configs, audio_processor_config=audio_processor_config)
         
+        # Load models - disable download attempts
+        model_configs = self.parse_model_configs(
+            model_paths, 
+            model_id_with_origin_paths, 
+            enable_fp8_training=False
+        )
+        
+        # Set local=True for all model configs to prevent download attempts
+        for config in model_configs:
+            config.local = True
+        
+        if audio_processor_config is not None:
+            audio_config = ModelConfig(
+                model_id=audio_processor_config.split(":")[0], 
+                origin_file_pattern=audio_processor_config.split(":")[1]
+            )
+            audio_config.local = True
+        else:
+            audio_config = None
+        
+        # Override tokenizer path to use local directory
+        if tokenizer_path is None:
+            tokenizer_path = "/kaggle/input/wan-ai-new/other/default/2/Wan2.1-T2V-1.3B/google/umt5-base"
+        
+        self.pipe = WanVideoPipeline.from_pretrained(
+            torch_dtype=torch.bfloat16, 
+            device="cpu", 
+            model_configs=model_configs, 
+            audio_processor_config=audio_config,
+            tokenizer_path=tokenizer_path,
+            redirect_common_files=False,  # Disable redirection to avoid download
+        )
+       
         # Training mode
         self.switch_pipe_to_training_mode(
             self.pipe, trainable_models,
-            lora_base_model, lora_target_modules, lora_rank, lora_checkpoint=lora_checkpoint,
+            lora_base_model, lora_target_modules, lora_rank, 
+            lora_checkpoint=lora_checkpoint,
             enable_fp8_training=False,
         )
-        
+       
         # Store other configs
         self.use_gradient_checkpointing = use_gradient_checkpointing
         self.use_gradient_checkpointing_offload = use_gradient_checkpointing_offload
         self.extra_inputs = extra_inputs.split(",") if extra_inputs is not None else []
         self.max_timestep_boundary = max_timestep_boundary
         self.min_timestep_boundary = min_timestep_boundary
-        
-        
+       
     def forward_preprocess(self, data):
         # CFG-sensitive parameters
         inputs_posi = {"prompt": data["prompt"]}
         inputs_nega = {}
-        
+       
         # CFG-unsensitive parameters
         inputs_shared = {
-            # Assume you are using this pipeline for inference,
-            # please fill in the input parameters.
             "input_video": data["video"],
             "height": data["video"][0].size[1],
             "width": data["video"][0].size[0],
             "num_frames": len(data["video"]),
-            # Please do not modify the following parameters
-            # unless you clearly know what this will cause.
             "cfg_scale": 1,
             "tiled": False,
             "rand_device": self.pipe.device,
@@ -111,7 +121,7 @@ class WanTrainingModule(DiffusionTrainingModule):
             "max_timestep_boundary": self.max_timestep_boundary,
             "min_timestep_boundary": self.min_timestep_boundary,
         }
-        
+       
         # Extra inputs
         for extra_input in self.extra_inputs:
             if extra_input == "input_image":
@@ -122,23 +132,25 @@ class WanTrainingModule(DiffusionTrainingModule):
                 inputs_shared[extra_input] = data[extra_input][0]
             else:
                 inputs_shared[extra_input] = data[extra_input]
-        
+       
         # Pipeline units will automatically process the input parameters.
         for unit in self.pipe.units:
-            inputs_shared, inputs_posi, inputs_nega = self.pipe.unit_runner(unit, self.pipe, inputs_shared, inputs_posi, inputs_nega)
+            inputs_shared, inputs_posi, inputs_nega = self.pipe.unit_runner(
+                unit, self.pipe, inputs_shared, inputs_posi, inputs_nega
+            )
         return {**inputs_shared, **inputs_posi}
-    
-    
+   
     def forward(self, data, inputs=None):
-        if inputs is None: inputs = self.forward_preprocess(data)
+        if inputs is None: 
+            inputs = self.forward_preprocess(data)
         models = {name: getattr(self.pipe, name) for name in self.pipe.in_iteration_models}
         loss = self.pipe.training_loss(**models, **inputs)
         return loss
 
-
 if __name__ == "__main__":
     parser = wan_parser()
     args = parser.parse_args()
+    
     dataset = UnifiedDataset(
         base_path=args.dataset_base_path,
         metadata_path=args.dataset_metadata_path,
@@ -156,10 +168,14 @@ if __name__ == "__main__":
             time_division_remainder=1,
         ),
         special_operator_map={
-            "animate_face_video": ToAbsolutePath(args.dataset_base_path) >> LoadVideo(args.num_frames, 4, 1, frame_processor=ImageCropAndResize(512, 512, None, 16, 16)),
+            "animate_face_video": ToAbsolutePath(args.dataset_base_path) >> LoadVideo(
+                args.num_frames, 4, 1, 
+                frame_processor=ImageCropAndResize(512, 512, None, 16, 16)
+            ),
             "input_audio": ToAbsolutePath(args.dataset_base_path) >> LoadAudio(sr=16000),
         }
     )
+    
     model = WanTrainingModule(
         model_paths=args.model_paths,
         model_id_with_origin_paths=args.model_id_with_origin_paths,
@@ -173,10 +189,12 @@ if __name__ == "__main__":
         extra_inputs=args.extra_inputs,
         max_timestep_boundary=args.max_timestep_boundary,
         min_timestep_boundary=args.min_timestep_boundary,
-        tokenizer_path=args.tokenizer_path,  # ADD THIS LINE
+        tokenizer_path=args.tokenizer_path,
     )
+    
     model_logger = ModelLogger(
         args.output_path,
         remove_prefix_in_ckpt=args.remove_prefix_in_ckpt
     )
+    
     launch_training_task(dataset, model, model_logger, args=args)
