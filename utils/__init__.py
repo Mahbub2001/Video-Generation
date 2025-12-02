@@ -173,6 +173,23 @@ class ModelConfig:
             if self.model_id is None:
                 raise ValueError(f"""No valid model files. Please use `ModelConfig(path="xxx")` or `ModelConfig(model_id="xxx/yyy", origin_file_pattern="zzz")`.""")
             
+            # CHECK IF MODEL_ID IS A LOCAL PATH - NEW CODE
+            if os.path.exists(self.model_id):
+                print(f"Using local model path: {self.model_id}")
+                # Check whether the origin path is a folder
+                if self.origin_file_pattern is None or self.origin_file_pattern == "":
+                    self.path = self.model_id
+                elif isinstance(self.origin_file_pattern, str) and self.origin_file_pattern.endswith("/"):
+                    self.path = os.path.join(self.model_id, self.origin_file_pattern)
+                else:
+                    # Use glob to find files matching the pattern
+                    matched_files = glob.glob(os.path.join(self.model_id, self.origin_file_pattern))
+                    if len(matched_files) == 0:
+                        raise FileNotFoundError(f"No files matching pattern '{self.origin_file_pattern}' found in {self.model_id}")
+                    self.path = matched_files if len(matched_files) > 1 else matched_files[0]
+                return
+            # END NEW CODE
+            
             # Skip if not in rank 0
             if use_usp:
                 import torch.distributed as dist
@@ -194,10 +211,13 @@ class ModelConfig:
             
             # Download
             if self.local_model_path is None:
-                self.local_model_path = "./models"
+                # Use writable directory for Kaggle
+                self.local_model_path = os.environ.get("MODELSCOPE_CACHE", "./models")
+            
             if not skip_download:
                 downloaded_files = glob.glob(self.origin_file_pattern, root_dir=os.path.join(self.local_model_path, self.model_id))
                 if self.download_resource.lower() == "modelscope":
+                    from modelscope.hub.snapshot_download import snapshot_download
                     snapshot_download(
                         self.model_id,
                         local_dir=os.path.join(self.local_model_path, self.model_id),
@@ -206,6 +226,7 @@ class ModelConfig:
                         local_files_only=False
                     )
                 elif self.download_resource.lower() == "huggingface":
+                    from huggingface_hub import snapshot_download as hf_snapshot_download
                     hf_snapshot_download(
                         self.model_id,
                         local_dir=os.path.join(self.local_model_path, self.model_id),

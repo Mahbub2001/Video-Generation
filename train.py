@@ -72,9 +72,11 @@ class WanTrainingModule(DiffusionTrainingModule):
         else:
             audio_config = None
         
-        # Override tokenizer path to use local directory
+        # Use provided tokenizer path or default to local directory
         if tokenizer_path is None:
             tokenizer_path = "/kaggle/input/wan-ai-new/other/default/2/Wan2.1-T2V-1.3B/google/umt5-base"
+        
+        print(f"Using tokenizer from: {tokenizer_path}")
         
         self.pipe = WanVideoPipeline.from_pretrained(
             torch_dtype=torch.bfloat16, 
