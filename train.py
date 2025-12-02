@@ -1,3 +1,24 @@
+# At top of train.py
+import os
+os.environ["MODELSCOPE_CACHE_DIR"] = "/kaggle/working/cache"
+os.makedirs("/kaggle/working/cache", exist_ok=True)
+
+# Disable all remote downloads
+from utils import ModelConfig
+original_download = ModelConfig.download_if_necessary
+
+def safe_download(self, use_usp=False):
+    if self.path is not None and os.path.exists(self.path):
+        print(f"Local model found, skipping download: {self.path}")
+        return
+    if "Wan" in str(self.model_id) or self.origin_file_pattern:
+        print(f"Assuming local file for {self.model_id} -> {self.origin_file_pattern}")
+        return
+    print("Falling back to original download (should not happen)")
+    return original_download(self, use_usp=use_usp)
+
+ModelConfig.download_if_necessary = safe_download
+
 import torch, os, json
 from safetensors import safe_open
 from wan_video_new import WanVideoPipeline
