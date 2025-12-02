@@ -1,3 +1,28 @@
+import os
+# CRITICAL: Prevent ModelScope from trying to write anywhere
+os.environ["MODELSCOPE_CACHE"] = "/kaggle/working/modelscope_cache"
+os.environ["HF_HOME"] = "/kaggle/working/hf_cache"
+os.environ["USE_MODELSCOPE_HUB"] = "0"        # Disable ModelScope hub
+os.environ["MODELSCOPE_DISABLE_DOWNLOAD"] = "1"  # Extra safety
+
+# Create writable cache dirs
+os.makedirs("/kaggle/working/modelscope_cache", exist_ok=True)
+os.makedirs("/kaggle/working/hf_cache", exist_ok=True)
+
+# Monkey-patch the problematic function to do nothing
+from utils import ModelConfig
+
+def noop_download_if_necessary(self, *args, **kwargs):
+    # Check if the local path already exists
+    if self.path and os.path.exists(self.path):
+        print(f"Skipping download (file exists): {self.path}")
+        return
+    # Otherwise fall back (but won't happen in your case)
+    print("Warning: download_if_necessary called but patched out")
+
+ModelConfig.download_if_necessary = noop_download_if_necessary
+
+
 import torch, warnings, glob, os, types
 import numpy as np
 from PIL import Image
