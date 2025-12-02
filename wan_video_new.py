@@ -409,18 +409,9 @@ class WanVideoPipeline(BasePipeline):
             pipe.width_division_factor = pipe.vae.upsampling_factor * 2
 
         # Initialize tokenizer
-        # tokenizer_config.download_if_necessary(use_usp=use_usp)
-        # pipe.prompter.fetch_models(pipe.text_encoder)
-        # pipe.prompter.fetch_tokenizer(tokenizer_config.path)
-        if tokenizer_path is not None:
-            # Use the provided tokenizer path directly
-            pipe.prompter.fetch_models(pipe.text_encoder)
-            pipe.prompter.fetch_tokenizer(tokenizer_path)
-        else:
-            # Use the old method with ModelConfig
-            tokenizer_config.download_if_necessary(use_usp=use_usp)
-            pipe.prompter.fetch_models(pipe.text_encoder)
-            pipe.prompter.fetch_tokenizer(tokenizer_config.path)
+        tokenizer_config.download_if_necessary(use_usp=use_usp)
+        pipe.prompter.fetch_models(pipe.text_encoder)
+        pipe.prompter.fetch_tokenizer(tokenizer_config.path)
 
         if audio_processor_config is not None:
             audio_processor_config.download_if_necessary(use_usp=use_usp)
