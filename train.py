@@ -82,7 +82,7 @@ class WanTrainingModule(DiffusionTrainingModule):
         
         # Use provided tokenizer path or default to local directory
         if tokenizer_path is None:
-            tokenizer_path = "/kaggle/input/wan-ai-new/other/default/2/Wan2.1-T2V-1.3B/google/umt5-base"
+            tokenizer_path = "/kaggle/input/wan-ai-new/other/default/1/Wan2.1-T2V-1.3B/google/umt5-xxl"
         
         print(f"Using tokenizer from: {tokenizer_path}")
         
