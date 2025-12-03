@@ -1,3 +1,11 @@
+import os
+
+# This overrides the default cache location for ModelScope/Hugging Face
+# to a writable directory (/kaggle/working/ is always writable).
+os.environ['MS_CACHE_HOME'] = "/kaggle/working/modelscope_cache"
+
+print(f"MS_CACHE_HOME set to: {os.environ['MS_CACHE_HOME']}")
+
 import torch, warnings, glob, os
 import numpy as np
 from PIL import Image
