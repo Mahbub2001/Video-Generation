@@ -1,10 +1,10 @@
-import os
+# import os
 
-# This overrides the default cache location for ModelScope/Hugging Face
-# to a writable directory (/kaggle/working/ is always writable).
-os.environ['MS_CACHE_HOME'] = "/kaggle/working/modelscope_cache"
+# # This overrides the default cache location for ModelScope/Hugging Face
+# # to a writable directory (/kaggle/working/ is always writable).
+# os.environ['MS_CACHE_HOME'] = "/kaggle/working/modelscope_cache"
 
-print(f"MS_CACHE_HOME set to: {os.environ['MS_CACHE_HOME']}")
+# print(f"MS_CACHE_HOME set to: {os.environ['MS_CACHE_HOME']}")
 
 import torch, warnings, glob, os, types
 import numpy as np
@@ -367,8 +367,8 @@ class WanVideoPipeline(BasePipeline):
         # Redirect model path
         if redirect_common_files:
             redirect_dict = {
-                "models_t5_umt5-base-enc-bf16.pth": "Wan-AI/Wan2.1-T2V-1.3B",
-                # "models_t5_umt5-xxl-enc-bf16.pth": "Wan-AI/Wan2.1-T2V-1.3B",
+                # "models_t5_umt5-base-enc-bf16.pth": "Wan-AI/Wan2.1-T2V-1.3B",
+                "models_t5_umt5-xxl-enc-bf16.pth": "Wan-AI/Wan2.1-T2V-1.3B",
                 "Wan2.1_VAE.pth": "Wan-AI/Wan2.1-T2V-1.3B",
                 "models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth": "Wan-AI/Wan2.1-I2V-14B-480P",
             }

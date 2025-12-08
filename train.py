@@ -1,10 +1,10 @@
-import os
+# import os
 
-# This overrides the default cache location for ModelScope/Hugging Face
-# to a writable directory (/kaggle/working/ is always writable).
-os.environ['MS_CACHE_HOME'] = "/kaggle/working/modelscope_cache"
+# # This overrides the default cache location for ModelScope/Hugging Face
+# # to a writable directory (/kaggle/working/ is always writable).
+# os.environ['MS_CACHE_HOME'] = "/kaggle/working/modelscope_cache"
 
-print(f"MS_CACHE_HOME set to: {os.environ['MS_CACHE_HOME']}")
+# print(f"MS_CACHE_HOME set to: {os.environ['MS_CACHE_HOME']}")
 
 import torch, os, json
 from safetensors import safe_open
@@ -13,9 +13,9 @@ from utils import ModelConfig
 from trainers.utils import DiffusionTrainingModule, ModelLogger, launch_training_task, wan_parser
 from trainers.unified_dataset import UnifiedDataset, LoadVideo, LoadAudio, ImageCropAndResize, ToAbsolutePath
 
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-# Prevent ModelScope from trying to download
-os.environ["MODELSCOPE_CACHE"] = "/kaggle/working/.cache/modelscope"
+# os.environ["TOKENIZERS_PARALLELISM"] = "false"
+# # Prevent ModelScope from trying to download
+# os.environ["MODELSCOPE_CACHE"] = "/kaggle/working/.cache/modelscope"
 
 def load_state_dict(file_path, torch_dtype=None, device="cpu"):
     if file_path.endswith(".safetensors"):

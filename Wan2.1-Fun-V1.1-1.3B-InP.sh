@@ -3,7 +3,7 @@ accelerate launch train.py \
   --dataset_metadata_path data/example_video_dataset/metadata.csv \
   --height 480 \
   --width 832 \
-  --dataset_repeat 100 \
+  --dataset_repeat 1 \
   --model_id_with_origin_paths "PAI/Wan2.1-Fun-V1.1-1.3B-InP:diffusion_pytorch_model*.safetensors,PAI/Wan2.1-Fun-V1.1-1.3B-InP:models_t5_umt5-xxl-enc-bf16.pth,PAI/Wan2.1-Fun-V1.1-1.3B-InP:Wan2.1_VAE.pth,PAI/Wan2.1-Fun-V1.1-1.3B-InP:models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth" \
   --learning_rate 1e-4 \
   --num_epochs 5 \
