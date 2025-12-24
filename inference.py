@@ -2,7 +2,7 @@ import torch
 from PIL import Image
 from utils.data import save_video, VideoData
 from wan_video_new import WanVideoPipeline, ModelConfig
-from modelscope import dataset_snapshot_download
+# from modelscope import dataset_snapshot_download
 
 
 # pipe = WanVideoPipeline.from_pretrained(
