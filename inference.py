@@ -10,28 +10,28 @@ pipe = WanVideoPipeline.from_pretrained(
 
         # Diffusion model
         ModelConfig(
-            model_id="/kaggle/input/pai/other/default/1/Wan2.1-Fun-V1.1-1.3B-InP",
+            model_id="/workspace/Video-Generation/models/PAI/Wan2.1-Fun-V1.1-1.3B-InP",
             origin_file_pattern="diffusion_pytorch_model.safetensors"
         ),
 
         # T5 text encoder
         ModelConfig(
-            path="/kaggle/input/wan-ai-new/other/default/1/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth"
+            path="/workspace/Video-Generation/models/Wan-AI/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth"
         ),
 
         # VAE
         ModelConfig(
-            path="/kaggle/input/wan-ai-new/other/default/1/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth"
+            path="/workspace/Video-Generation/models/Wan-AI/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth"
         ),
 
         # CLIP image encoder
         ModelConfig(
-            path="/kaggle/input/wan-ai-new/other/default/1/Wan2.1-I2V-14B-480P/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth"
+            path="/workspace/Video-Generation/models/Wan-AI/Wan2.1-I2V-14B-480P/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth"
         ),
     ],
 
     tokenizer_config=ModelConfig(
-        path="/kaggle/input/wan-ai-new/other/default/1/Wan2.1-T2V-1.3B/google/umt5-xxl"
+        path="/workspace/Video-Generation/models/Wan-AI/Wan2.1-T2V-1.3B/google/umt5-xxl"
     ),
 )
 
@@ -50,7 +50,8 @@ video = pipe(
     ),
     input_image=image,
     seed=0,
-    tiled=True
+    tiled=True,
+    num_frames=150
 )
 
-save_video(video, "video_Wan2.1-Fun-V1.1-1.3B-InP.mp4", fps=15, quality=5)
+save_video(video, "video_Wan2.1-10s.mp4", fps=15, quality=5)
