@@ -388,7 +388,8 @@ class WanVideoPipeline(BasePipeline):
         # Download and load models
         model_manager = ModelManager()
         for model_config in model_configs:
-            model_config.download_if_necessary(use_usp=use_usp)
+            model_config.download_if_necessary()
+            # model_config.download_if_necessary(use_usp=use_usp)
             model_manager.load_model(
                 model_config.path,
                 device=model_config.offload_device or device,
@@ -420,12 +421,14 @@ class WanVideoPipeline(BasePipeline):
             pipe.width_division_factor = pipe.vae.upsampling_factor * 2
 
         # Initialize tokenizer
-        tokenizer_config.download_if_necessary(use_usp=use_usp)
+        # tokenizer_config.download_if_necessary(use_usp=use_usp)
+        tokenizer_config.download_if_necessary()
         pipe.prompter.fetch_models(pipe.text_encoder)
         pipe.prompter.fetch_tokenizer(tokenizer_config.path)
 
         if audio_processor_config is not None:
-            audio_processor_config.download_if_necessary(use_usp=use_usp)
+            audio_processor_config.download_if_necessary()
+            # audio_processor_config.download_if_necessary(use_usp=use_usp)
             from transformers import Wav2Vec2Processor
             pipe.audio_processor = Wav2Vec2Processor.from_pretrained(audio_processor_config.path)
         # Unified Sequence Parallel
