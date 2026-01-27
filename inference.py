@@ -10,28 +10,28 @@ pipe = WanVideoPipeline.from_pretrained(
 
         # Diffusion model
         ModelConfig(
-            model_id="/kaggle/working/PAI/Wan2.1-Fun-V1.1-1.3B-InP",
+            model_id="/kaggle/working/models/PAI/Wan2.1-Fun-V1.1-1.3B-InP",
             origin_file_pattern="diffusion_pytorch_model*.safetensors"
         ),
 
         # T5 text encoder
         ModelConfig(
-            path="/kaggle/working/Wan-AI/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth"
+            path="/kaggle/working/models/Wan-AI/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth"
         ),
 
         # VAE
         ModelConfig(
-            path="/kaggle/working/Wan-AI/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth"
+            path="/kaggle/working/models/Wan-AI/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth"
         ),
 
         # CLIP image encoder
         ModelConfig(
-            path="/kaggle/working/Wan-AI/Wan2.1-I2V-14B-480P/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth"
+            path="/kaggle/working/models/Wan-AI/Wan2.1-I2V-14B-480P/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth"
         ),
     ],
 
     tokenizer_config=ModelConfig(
-        path="/kaggle/working/Wan-AI/Wan2.1-T2V-1.3B/google/umt5-xxl"
+        path="/kaggle/working/models/Wan-AI/Wan2.1-T2V-1.3B/google/umt5-xxl"
     ),
 )
 
